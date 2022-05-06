@@ -27,13 +27,13 @@ namespace GetStreamChatExample.UI
             _lastUsedSortingMode = SortingMode.NameAscending;
             _clanInfoPanels = new List<UIClanInfoPanel>();
 
-            // TODO Get max amount of pages
-            // TODO Query channels
             RefreshChannels();
         }
 
         private async void RefreshChannels()
         {
+            _maxPage = await _chatBehaviour.GetChannelsCount();
+
             var channels = await _chatBehaviour.GetChannels(_lastUsedSortingMode, _currentPage, PageSize);
 
             // TODO Object pool

@@ -51,6 +51,13 @@ namespace GetStreamChatExample.Logic
             return channelResponse?.Channels?.Select(cs => cs.Channel);
         }
 
+        public async Task<int> GetChannelsCount()
+        {
+            // TODO Can it be done more efficiently?
+            var channelResponse = await _client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest());
+            return channelResponse?.Channels?.Count ?? 0;
+        }
+
         private void Update()
         {
             _client.Update(Time.deltaTime);
