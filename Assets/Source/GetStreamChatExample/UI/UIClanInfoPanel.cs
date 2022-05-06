@@ -31,16 +31,18 @@ namespace GetStreamChatExample.UI
                 ClanIcon.sprite = clanIcon;
             
             if (ClanName != null)
-                ClanName.name = clanName;
+                ClanName.text = clanName;
 
             if (ClanDescription != null)
-                ClanDescription.name = description;
+                ClanDescription.text = description;
 
             if (MembersCount != null)
-                MembersCount.name = $"{currentMembers}/{maxMembers}";
+                MembersCount.text = $"{currentMembers}/{maxMembers}";
            
             if (OnlineMembersCount != null)
-                OnlineMembersCount.name = onlineMembers.ToString();
+                OnlineMembersCount.text = onlineMembers.ToString();
+
+            gameObject.SetActive(true);
         }
 
         /// <summary>

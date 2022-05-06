@@ -46,8 +46,7 @@ namespace GetStreamChatExample.UI
             foreach (var channel in channels)
             {
                 var clanInfoPanel = Instantiate(ClanInfoPanelTemplate.gameObject, ClanListPanel).GetComponent<UIClanInfoPanel>();
-                clanInfoPanel.Init(null, channel.Name, null, (int) channel.AdditionalProperties["member_count"], 
-                    (int) channel.AdditionalProperties["member_max"], (int) channel.AdditionalProperties["member_online"]);
+                clanInfoPanel.Init(null, channel.Name, null, channel.MemberCount ?? 0, 0, 0);
 
                 _clanInfoPanels.Add(clanInfoPanel);
             }
