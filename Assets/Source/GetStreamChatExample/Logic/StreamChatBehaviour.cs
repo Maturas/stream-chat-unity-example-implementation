@@ -1,0 +1,69 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using GetStreamChatExample.UI;
+using StreamChat.Core;
+using StreamChat.Core.Auth;
+using StreamChat.Core.Models;
+using StreamChat.Core.Requests;
+using UnityEngine;
+
+namespace GetStreamChatExample.Logic
+{
+    public class StreamChatBehaviour : MonoBehaviour
+    {
+        public AuthCredentialsAsset Credentials;
+        public UIClanBrowser ClanBrowser;
+
+        private IStreamChatClient _client;
+
+        private void Awake()
+        {
+            try
+            {
+                _client = StreamChatClient.CreateDefaultClient(Credentials.Credentials);
+                _client.Connect();
+                _client.Connected += OnClientConnected;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+
+        public async Task<IEnumerable<Channel>> GetChannels(SortingMode sortingMode, int currentPage, int pageSize)
+        {
+            var queryChannelsRequest = new QueryChannelsRequest
+            {
+                Sort = new List<SortParamRequest>
+                {
+                    sortingMode.ToSortParamRequest()
+                },
+                Limit = pageSize,
+                Offset = currentPage * pageSize,
+                Watch = true,
+                State = true
+            };
+
+            var channelResponse = await _client.ChannelApi.QueryChannelsAsync(queryChannelsRequest);
+            return channelResponse?.Channels?.Select(cs => cs.Channel);
+        }
+
+        private void Update()
+        {
+            _client.Update(Time.deltaTime);
+        }
+
+        private void OnDestroy()
+        {
+            _client.Dispose();
+        }
+
+        private void OnClientConnected()
+        {
+            ClanBrowser.Init(this);
+        }
+    }
+}
