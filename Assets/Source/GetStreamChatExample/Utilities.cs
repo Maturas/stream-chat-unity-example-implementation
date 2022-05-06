@@ -11,8 +11,8 @@ namespace GetStreamChatExample
             SortingMode.NameDescending => new SortParamRequest { Field = "name", Direction = -1 },
             SortingMode.CreationDateAscending => new SortParamRequest { Field = "created_at", Direction = 1 },
             SortingMode.CreationDateDescending => new SortParamRequest { Field = "created_at", Direction = -1 },
-            SortingMode.MembersCountAscending => new SortParamRequest { Field = "members_count", Direction = 1 },
-            SortingMode.MembersCountDescending => new SortParamRequest { Field = "members_count", Direction = -1 },
+            SortingMode.MembersCountAscending => new SortParamRequest { Field = "member_count", Direction = 1 },
+            SortingMode.MembersCountDescending => new SortParamRequest { Field = "member_count", Direction = -1 },
             _ => throw new ArgumentOutOfRangeException()
         };
     }
