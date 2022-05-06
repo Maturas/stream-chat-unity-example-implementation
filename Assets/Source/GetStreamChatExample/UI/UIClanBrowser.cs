@@ -32,7 +32,8 @@ namespace GetStreamChatExample.UI
 
         private async void RefreshChannels()
         {
-            _maxPage = await _chatBehaviour.GetChannelsCount();
+            var channelsCount = await _chatBehaviour.GetChannelsCount();
+            _maxPage = Mathf.CeilToInt((float) channelsCount / PageSize);
 
             var channels = await _chatBehaviour.GetChannels(_lastUsedSortingMode, _currentPage, PageSize);
 
