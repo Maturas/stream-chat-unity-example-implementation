@@ -39,7 +39,7 @@ namespace GetStreamChatExample.UI
             // TODO Object pool
             foreach (var clanInfoPanel in _clanInfoPanels)
             {
-                Destroy(clanInfoPanel);
+                Destroy(clanInfoPanel.gameObject);
             }
             _clanInfoPanels.Clear();
 
