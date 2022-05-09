@@ -32,13 +32,17 @@ namespace GetStreamChatExample.Logic
             }
         }
 
-        public async Task<IEnumerable<Channel>> GetChannels(SortingMode sortingMode, int currentPage, int pageSize)
+        public async Task<IEnumerable<Channel>> GetChannels(SortingMode sortingMode, int currentPage, int pageSize, string searchString)
         {
             var queryChannelsRequest = new QueryChannelsRequest
             {
                 Sort = new List<SortParamRequest>
                 {
                     sortingMode.ToSortParamRequest()
+                },
+                FilterConditions = string.IsNullOrWhiteSpace(searchString) ? null : new Dictionary<string, object>
+                {
+                    { "name", new Dictionary<string, string> { { "$autocomplete", searchString } } }
                 },
                 Limit = pageSize,
                 Offset = currentPage * pageSize,

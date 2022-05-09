@@ -30,12 +30,12 @@ namespace GetStreamChatExample.UI
             RefreshChannels();
         }
 
-        private async void RefreshChannels()
+        private async void RefreshChannels(string searchString = null)
         {
             var channelsCount = await _chatBehaviour.GetChannelsCount();
             _maxPage = Mathf.CeilToInt((float) channelsCount / PageSize);
 
-            var channels = await _chatBehaviour.GetChannels(_lastUsedSortingMode, _currentPage, PageSize);
+            var channels = await _chatBehaviour.GetChannels(_lastUsedSortingMode, _currentPage, PageSize, searchString);
 
             // TODO Object pool
             foreach (var clanInfoPanel in _clanInfoPanels)
@@ -59,9 +59,7 @@ namespace GetStreamChatExample.UI
         /// <param name="value"></param>
         public void OnSearchFieldChange(string value)
         {
-            // TODO
-
-            RefreshChannels();
+            RefreshChannels(value);
         }
 
         /// <summary>
