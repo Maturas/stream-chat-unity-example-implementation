@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using SampleProject.Scripts.Popups;
 using StreamChat.Core;
-using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.SampleProject.Popups;
+using StreamChat.SampleProject.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -103,7 +103,11 @@ namespace StreamChat.SampleProject.Views
             var instance = GameObject.Instantiate(prefab, _popupsContainer);
             var popup = instance.GetComponent<TPopup>();
 
-            popup.Init(_viewContext);
+            //Todo: fix this dependency, some popups don't need view context like ErrorPopup
+            if (_viewContext != null)
+            {
+                popup.Init(_viewContext);
+            }
 
             return popup;
         }
