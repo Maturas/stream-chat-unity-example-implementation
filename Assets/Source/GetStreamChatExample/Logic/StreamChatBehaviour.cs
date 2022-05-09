@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using GetStreamChatExample.UI;
 using StreamChat.Core;
-using StreamChat.Core.Auth;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
+using StreamChat.Libs.Auth;
 using UnityEngine;
 
 namespace GetStreamChatExample.Logic
