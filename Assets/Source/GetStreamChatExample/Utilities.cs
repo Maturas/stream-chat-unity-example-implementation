@@ -1,6 +1,7 @@
 ﻿using System;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
+using UnityEngine;
 
 namespace GetStreamChatExample
 {
@@ -19,7 +20,22 @@ namespace GetStreamChatExample
 
         public static T GetAdditionalProperty<T>(this Channel channel, string key)
         {
-            return channel.AdditionalProperties.TryGetValue(key, out var obj) ? (T) obj : default(T);
+            try
+            {
+                if (channel.AdditionalProperties.TryGetValue(key, out var obj))
+                {
+                    return (T) obj;
+                }
+                else
+                {
+                    return default;
+                }
+            }
+            catch (InvalidCastException e)
+            {
+                Debug.LogError(e.Message);
+                throw;
+            }
         }
     }
 }

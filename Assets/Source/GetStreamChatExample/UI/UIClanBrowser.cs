@@ -30,9 +30,9 @@ namespace GetStreamChatExample.UI
             RefreshChannels();
         }
 
-        public async void DevUpdateChannels()
+        public void OnDevUpdateChannelsButton()
         {
-
+            _chatBehaviour.DevUpdateChannels();
         }
 
         private async void RefreshChannels(string searchString = null)
@@ -57,7 +57,7 @@ namespace GetStreamChatExample.UI
                 var channelName = channelState.Channel.Name;
                 var description = channelState.Channel.GetAdditionalProperty<string>(AdditionalPropertyKeys.ChannelDescription);
                 var memberCount = channelState.Channel.MemberCount ?? 0;
-                var maxMemberCount = channelState.Channel.GetAdditionalProperty<int>(AdditionalPropertyKeys.ChannelMaxMemberCount);
+                var maxMemberCount = channelState.Channel.GetAdditionalProperty<object>(AdditionalPropertyKeys.ChannelMaxMemberCount).ToString(); // Workaround TODO It should be an int
                 var onlineMemberCount = channelState.WatcherCount ?? 0;
 
                 clanInfoPanel.Init(null, channelName, description, memberCount, maxMemberCount, onlineMemberCount);

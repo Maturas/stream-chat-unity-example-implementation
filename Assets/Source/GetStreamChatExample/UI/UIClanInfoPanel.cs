@@ -23,7 +23,7 @@ namespace GetStreamChatExample.UI
         /// <param name="currentMembers"></param>
         /// <param name="maxMembers"></param>
         /// <param name="onlineMembers"></param>
-        public void Init(Sprite clanIcon, string clanName, string description,  int currentMembers, int maxMembers, int onlineMembers)
+        public void Init(Sprite clanIcon, string clanName, string description,  int currentMembers, string maxMembers, int onlineMembers)
         {
             // TODO Clan info reference for joining
 

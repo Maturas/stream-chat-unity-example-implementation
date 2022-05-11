@@ -8,6 +8,7 @@ using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Libs.Auth;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace GetStreamChatExample.Logic
 {
@@ -34,7 +35,10 @@ namespace GetStreamChatExample.Logic
 
         public async Task<IEnumerable<ChannelState>> GetAllChannels()
         {
-            var channelResponse = await _client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest());
+            var channelResponse = await _client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
+            {
+                Limit = int.MaxValue
+            });
             return channelResponse?.Channels;
         }
 
@@ -65,6 +69,24 @@ namespace GetStreamChatExample.Logic
             // TODO Can it be done more efficiently?
             var channels = await GetAllChannels();
             return channels?.Count() ?? 0;
+        }
+
+        public async void DevUpdateChannels()
+        {
+            var channels = await GetAllChannels();
+
+            foreach (var channelState in channels)
+            {
+                await _client.ChannelApi.UpdateChannelPartialAsync(channelState.Channel.Type, channelState.Channel.Id,
+                    new UpdateChannelPartialRequest
+                    {
+                        Set = new Dictionary<string, object>
+                        {
+                            { AdditionalPropertyKeys.ChannelMaxMemberCount, Random.Range(100, 1000) },
+                            { AdditionalPropertyKeys.ChannelDescription, $"Test description #{Random.Range(100, 1000)}" },
+                        }
+                    });
+            }
         }
 
         private void Update()
