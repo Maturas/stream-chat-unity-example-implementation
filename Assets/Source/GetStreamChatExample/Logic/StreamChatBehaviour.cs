@@ -32,7 +32,13 @@ namespace GetStreamChatExample.Logic
             }
         }
 
-        public async Task<IEnumerable<Channel>> GetChannels(SortingMode sortingMode, int currentPage, int pageSize, string searchString)
+        public async Task<IEnumerable<ChannelState>> GetAllChannels()
+        {
+            var channelResponse = await _client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest());
+            return channelResponse?.Channels;
+        }
+
+        public async Task<IEnumerable<ChannelState>> GetChannels(SortingMode sortingMode, int currentPage, int pageSize, string searchString)
         {
             var queryChannelsRequest = new QueryChannelsRequest
             {
@@ -51,14 +57,14 @@ namespace GetStreamChatExample.Logic
             };
 
             var channelResponse = await _client.ChannelApi.QueryChannelsAsync(queryChannelsRequest);
-            return channelResponse?.Channels?.Select(cs => cs.Channel);
+            return channelResponse?.Channels;
         }
 
         public async Task<int> GetChannelsCount()
         {
             // TODO Can it be done more efficiently?
-            var channelResponse = await _client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest());
-            return channelResponse?.Channels?.Count ?? 0;
+            var channels = await GetAllChannels();
+            return channels?.Count() ?? 0;
         }
 
         private void Update()

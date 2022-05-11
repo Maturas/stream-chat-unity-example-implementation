@@ -1,4 +1,5 @@
 ﻿using System;
+using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 
 namespace GetStreamChatExample
@@ -15,5 +16,10 @@ namespace GetStreamChatExample
             SortingMode.MembersCountDescending => new SortParamRequest { Field = "member_count", Direction = -1 },
             _ => throw new ArgumentOutOfRangeException()
         };
+
+        public static T GetAdditionalProperty<T>(this Channel channel, string key)
+        {
+            return channel.AdditionalProperties.TryGetValue(key, out var obj) ? (T) obj : default(T);
+        }
     }
 }

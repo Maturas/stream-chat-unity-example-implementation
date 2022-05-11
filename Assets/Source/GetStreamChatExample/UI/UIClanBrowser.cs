@@ -30,12 +30,17 @@ namespace GetStreamChatExample.UI
             RefreshChannels();
         }
 
+        public async void DevUpdateChannels()
+        {
+
+        }
+
         private async void RefreshChannels(string searchString = null)
         {
             var channelsCount = await _chatBehaviour.GetChannelsCount();
             _maxPage = Mathf.CeilToInt((float) channelsCount / PageSize);
 
-            var channels = await _chatBehaviour.GetChannels(_lastUsedSortingMode, _currentPage, PageSize, searchString);
+            var channelStates = await _chatBehaviour.GetChannels(_lastUsedSortingMode, _currentPage, PageSize, searchString);
 
             // TODO Object pool
             foreach (var clanInfoPanel in _clanInfoPanels)
@@ -44,10 +49,18 @@ namespace GetStreamChatExample.UI
             }
             _clanInfoPanels.Clear();
 
-            foreach (var channel in channels)
+            foreach (var channelState in channelStates)
             {
+                // TODO Icon
                 var clanInfoPanel = Instantiate(ClanInfoPanelTemplate.gameObject, ClanListPanel).GetComponent<UIClanInfoPanel>();
-                clanInfoPanel.Init(null, channel.Name, null, channel.MemberCount ?? 0, 0, 0);
+
+                var channelName = channelState.Channel.Name;
+                var description = channelState.Channel.GetAdditionalProperty<string>(AdditionalPropertyKeys.ChannelDescription);
+                var memberCount = channelState.Channel.MemberCount ?? 0;
+                var maxMemberCount = channelState.Channel.GetAdditionalProperty<int>(AdditionalPropertyKeys.ChannelMaxMemberCount);
+                var onlineMemberCount = channelState.WatcherCount ?? 0;
+
+                clanInfoPanel.Init(null, channelName, description, memberCount, maxMemberCount, onlineMemberCount);
 
                 _clanInfoPanels.Add(clanInfoPanel);
             }
