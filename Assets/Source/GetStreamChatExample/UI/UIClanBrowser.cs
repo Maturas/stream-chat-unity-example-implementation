@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using GetStreamChatExample.Logic;
+using TMPro;
 using UnityEngine;
 
 namespace GetStreamChatExample.UI
@@ -10,6 +11,8 @@ namespace GetStreamChatExample.UI
 
         public UIClanInfoPanel ClanInfoPanelTemplate;
         public RectTransform ClanListPanel;
+        public RectTransform CreateClanPanel;
+        public TMP_InputField CreateClanName;
 
         private StreamChatBehaviour _chatBehaviour;
 
@@ -142,7 +145,15 @@ namespace GetStreamChatExample.UI
         /// </summary>
         public void OnClickCreateClan()
         {
-            // TODO
+            var channelName = CreateClanName.text;
+
+            if (string.IsNullOrWhiteSpace(channelName) || channelName.Length < 5)
+                return;
+
+            _chatBehaviour.CreateChannel(channelName);
+
+            CreateClanPanel.gameObject.SetActive(false);
+            RefreshChannels();
         }
     }
 }

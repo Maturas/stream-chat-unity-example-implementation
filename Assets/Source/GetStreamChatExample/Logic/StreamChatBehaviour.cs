@@ -71,6 +71,19 @@ namespace GetStreamChatExample.Logic
             return channels?.Count() ?? 0;
         }
 
+        public async void CreateChannel(string channelName)
+        {
+            await _client.ChannelApi.GetOrCreateChannelAsync("livestream", channelName.Replace(" ", ""), new ChannelGetOrCreateRequest
+            {
+                AdditionalProperties = new Dictionary<string, object>
+                {
+                    { "name", channelName },
+                    { AdditionalPropertyKeys.ChannelDescription, $"Created channel description #{Random.Range(100, 1000)}" },
+                    { AdditionalPropertyKeys.ChannelMaxMemberCount, Random.Range(100, 1000) }
+                }
+            });
+        }
+
         public async void DevUpdateChannels()
         {
             var channels = await GetAllChannels();
