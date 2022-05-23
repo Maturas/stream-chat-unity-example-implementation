@@ -1,7 +1,7 @@
 ﻿using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Requests;
 
-namespace StreamChat.Core.Plugins.StreamChat.Core.Requests
+namespace StreamChat.Core.Requests
 {
     public partial class ImageUploadRequest : RequestObjectBase, ISavableTo<ImageUploadRequestDTO>
     {
@@ -13,7 +13,7 @@ namespace StreamChat.Core.Plugins.StreamChat.Core.Requests
         /// <summary>
         /// multipart/form-data field with JSON-encoded array of image size configurations
         /// </summary>
-        public System.Collections.Generic.ICollection<ImageSizeRequest> UploadSizes { get; set; }
+        public System.Collections.Generic.List<ImageSizeRequest> UploadSizes { get; set; }
 
         ImageUploadRequestDTO ISavableTo<ImageUploadRequestDTO>.SaveToDto() =>
             new ImageUploadRequestDTO()
