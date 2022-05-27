@@ -75,11 +75,14 @@ namespace GetStreamChatExample.Logic
         {
             await _client.ChannelApi.GetOrCreateChannelAsync("livestream", channelName.Replace(" ", ""), new ChannelGetOrCreateRequest
             {
-                AdditionalProperties = new Dictionary<string, object>
+                Data = new ChannelRequest
                 {
-                    { "name", channelName },
-                    { AdditionalPropertyKeys.ChannelDescription, $"Created channel description #{Random.Range(100, 1000)}" },
-                    { AdditionalPropertyKeys.ChannelMaxMemberCount, Random.Range(100, 1000) }
+                    AdditionalProperties = new Dictionary<string, object>
+                    {
+                        { "name", channelName },
+                        { AdditionalPropertyKeys.ChannelDescription, $"Created channel description #{Random.Range(100, 1000)}" },
+                        { AdditionalPropertyKeys.ChannelMaxMemberCount, Random.Range(100, 1000) }
+                    }
                 }
             });
         }
