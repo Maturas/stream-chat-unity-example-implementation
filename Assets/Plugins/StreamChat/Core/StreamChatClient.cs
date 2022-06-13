@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using StreamChat.Core.DTO.Events;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
@@ -24,9 +25,6 @@ namespace StreamChat.Core
     /// Stream Chat Client - maintains WebSockets connection, executes API calls and exposes Stream events to which you can subscribe.
     /// There should be only one instance of this client in your application.
     /// </summary>
-    /// <remarks>
-    /// The only case where you might want to have multiple instances is if you'd be creating an app which maintains multiple users connected simultaneously.
-    /// </remarks>
     public class StreamChatClient : IStreamChatClient
     {
         public const string MenuPrefix = "Stream/";
@@ -40,8 +38,8 @@ namespace StreamChat.Core
         public event Action<string> EventReceived;
 
         public event Action<EventMessageNew> MessageReceived;
-        public event Action<EventMessageDeleted> MessageDeleted;
         public event Action<EventMessageUpdated> MessageUpdated;
+        public event Action<EventMessageDeleted> MessageDeleted;
 
         public event Action<EventReactionNew> ReactionReceived;
         public event Action<EventReactionUpdated> ReactionUpdated;
@@ -137,6 +135,8 @@ namespace StreamChat.Core
             UserApi = new UserApi(httpClient, serializer, logs, _requestUriFactory);
 
             RegisterEventHandlers();
+
+            LogErrorIfUpdateIsNotBeingCalled();
         }
 
         public void Connect()
@@ -165,6 +165,8 @@ namespace StreamChat.Core
 
         public void Update(float deltaTime)
         {
+            _updateCallReceived = true;
+
             UpdateHealthCheck();
 
             while (_websocketClient.TryDequeueMessage(out var msg))
@@ -184,6 +186,8 @@ namespace StreamChat.Core
             _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
             _websocketClient.Connected -= OnWebsocketsConnected;
             _websocketClient?.Dispose();
+
+            ConnectionState = ConnectionState.Disconnected;
         }
 
         string IAuthProvider.ApiKey => _authCredentials.ApiKey;
@@ -215,6 +219,7 @@ namespace StreamChat.Core
         private int _reconnectAttempt;
         private float _lastHealthCheckReceivedTime;
         private float _lastHealthCheckSendTime;
+        private bool _updateCallReceived;
 
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
@@ -400,6 +405,18 @@ namespace StreamChat.Core
             }
 
             _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
+        }
+
+        private void LogErrorIfUpdateIsNotBeingCalled()
+        {
+            const int Timeout = 2;
+            Task.Delay(Timeout * 1000).ContinueWith(t =>
+            {
+                if (!_updateCallReceived && ConnectionState != ConnectionState.Disconnected)
+                {
+                    _logs.Error($"Connection is not being updated. Please call the `{nameof(StreamChatClient)}.{nameof(StreamChatClient.Update)}` method per frame.");
+                }
+            });
         }
     }
 }

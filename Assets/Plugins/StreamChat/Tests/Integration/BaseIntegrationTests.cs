@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if STREAM_TESTS_ENABLED
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -7,7 +8,10 @@ using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
+using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
+using UnityEditor;
+using UnityEngine;
 
 namespace StreamChat.Tests.Integration
 {
@@ -16,33 +20,66 @@ namespace StreamChat.Tests.Integration
     /// </summary>
     public abstract class BaseIntegrationTests
     {
-        [SetUp]
+        public const string StreamTestDataArgKey = "-StreamTestDataSet";
+
+        [OneTimeSetUp]
         public void Up()
         {
-            const string ApiKey = "";
+            Debug.Log("------------ Up");
 
-            var guestAuthCredentials = new AuthCredentials(
-                apiKey: ApiKey,
-                userId: TestGuestId,
-                userToken: "");
+            AuthCredentials guestAuthCredentials, userAuthCredentials, adminAuthCredentials = default;
 
-            var userAuthCredentials = new AuthCredentials(
-                apiKey: ApiKey,
-                userId: TestUserId,
-                userToken: "");
+            if (Application.isBatchMode)
+            {
+                //Get from environment
 
-            var adminAuthCredentials = new AuthCredentials(
-                apiKey: ApiKey,
-                userId: TestAdminId,
-                userToken: "");
+                var args = new Dictionary<string, string>();
+                EditorTools.StreamEditorTools.ParseEnvArgs(Environment.GetCommandLineArgs(), args);
+
+                if (!args.ContainsKey(StreamTestDataArgKey))
+                {
+                    throw new ArgumentException("Missing environment arg with key: " + StreamTestDataArgKey);
+                }
+
+                var serializer = new NewtonsoftJsonSerializer();
+                var testAuthDataSet = serializer.Deserialize<TestAuthDataSet>(args[StreamTestDataArgKey]);
+
+                guestAuthCredentials = testAuthDataSet.TestGuestData;
+                userAuthCredentials = testAuthDataSet.TestUserData;
+                adminAuthCredentials = testAuthDataSet.TestAdminData;
+
+            }
+            else
+            {
+                //Define manually
+
+                const string ApiKey = "";
+
+                guestAuthCredentials = new AuthCredentials(
+                    apiKey: ApiKey,
+                    userId: TestGuestId,
+                    userToken: "");
+
+                userAuthCredentials = new AuthCredentials(
+                    apiKey: ApiKey,
+                    userId: TestUserId,
+                    userToken: "");
+
+                adminAuthCredentials = new AuthCredentials(
+                    apiKey: ApiKey,
+                    userId: TestAdminId,
+                    userToken: "");
+            }
 
             Client = StreamChatClient.CreateDefaultClient(adminAuthCredentials);
             Client.Connect();
         }
 
-        [TearDown]
+        [OneTimeTearDown]
         public void TearDown()
         {
+            Debug.Log("------------ TearDown");
+
             DeleteTempChannels();
 
             Client.Dispose();
@@ -56,14 +93,15 @@ namespace StreamChat.Tests.Integration
         protected IStreamChatClient Client { get; private set; }
 
         /// <summary>
-        ///  Create temp channel with random name that will be removed in [TearDown]
+        ///  Create temp channel with random id that will be removed in [TearDown]
         /// </summary>
-        protected IEnumerator CreateTempUniqueChannel(string channelType, Action<ChannelState> onChannelReturned)
+        protected IEnumerator CreateTempUniqueChannel(string channelType,
+            ChannelGetOrCreateRequest channelGetOrCreateRequest, Action<ChannelState> onChannelReturned)
         {
             var channelId = "random-channel-" + Guid.NewGuid();
 
             var createChannelTask =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
+                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, channelGetOrCreateRequest);
 
             yield return createChannelTask.RunAsIEnumerator(response =>
             {
@@ -72,7 +110,22 @@ namespace StreamChat.Tests.Integration
             });
         }
 
-        private readonly List<(string ChannelType, string ChannelId)> _tempChannelsToDelete = new List<(string ChannelType, string ChannelId)>();
+        protected IEnumerator InternalWaitForSeconds(float seconds)
+        {
+            if (seconds <= 0)
+            {
+                yield break;
+            }
+            var currentTime = EditorApplication.timeSinceStartup;
+
+            while ((EditorApplication.timeSinceStartup - currentTime) < seconds)
+            {
+                yield return null;
+            }
+        }
+
+        private readonly List<(string ChannelType, string ChannelId)> _tempChannelsToDelete =
+            new List<(string ChannelType, string ChannelId)>();
 
         private void DeleteTempChannels()
         {
@@ -90,6 +143,8 @@ namespace StreamChat.Tests.Integration
                 cids.Add($"{channelType}:{channelId}");
             }
 
+            _tempChannelsToDelete.Clear();
+
             Client.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
             {
                 Cids = cids,
@@ -98,3 +153,4 @@ namespace StreamChat.Tests.Integration
         }
     }
 }
+#endif
