@@ -6,9 +6,9 @@ using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
+using StreamChat.EditorTools;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
-using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -20,8 +20,6 @@ namespace StreamChat.Tests.Integration
     /// </summary>
     public abstract class BaseIntegrationTests
     {
-        public const string StreamTestDataArgKey = "-StreamTestDataSet";
-
         [OneTimeSetUp]
         public void Up()
         {
@@ -31,23 +29,18 @@ namespace StreamChat.Tests.Integration
 
             if (Application.isBatchMode)
             {
-                //Get from environment
+                Debug.Log("Batch mode, expecting data injected through CLI args");
 
-                var args = new Dictionary<string, string>();
-                EditorTools.StreamEditorTools.ParseEnvArgs(Environment.GetCommandLineArgs(), args);
+                var parser = new CommandLineParser();
+                var argsDict = parser.GetParsedCommandLineArguments();
 
-                if (!args.ContainsKey(StreamTestDataArgKey))
-                {
-                    throw new ArgumentException("Missing environment arg with key: " + StreamTestDataArgKey);
-                }
+                var testAuthDataSet = parser.ParseTestAuthDataSetArg(argsDict);
 
-                var serializer = new NewtonsoftJsonSerializer();
-                var testAuthDataSet = serializer.Deserialize<TestAuthDataSet>(args[StreamTestDataArgKey]);
+                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData.UserId);
 
                 guestAuthCredentials = testAuthDataSet.TestGuestData;
                 userAuthCredentials = testAuthDataSet.TestUserData;
                 adminAuthCredentials = testAuthDataSet.TestAdminData;
-
             }
             else
             {
@@ -116,6 +109,7 @@ namespace StreamChat.Tests.Integration
             {
                 yield break;
             }
+
             var currentTime = EditorApplication.timeSinceStartup;
 
             while ((EditorApplication.timeSinceStartup - currentTime) < seconds)
