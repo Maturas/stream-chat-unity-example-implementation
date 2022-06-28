@@ -1,0 +1,14 @@
+Font: Poppins  Style: Black
+Point Size: 277   SP/PD Ratio: 18,1%
+
+Characters included: 207/209
+Missing characters: 2
+Excluded characters: 0
+
+Characters missing from font file:
+----------------------------------------
+ID: 8242	Hex: 2032	Char [′]
+ID: 8243	Hex: 2033	Char [″]
+
+Characters excluded from packing:
+----------------------------------------
